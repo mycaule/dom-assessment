@@ -65,22 +65,47 @@ def simple_moves(pos, board, color):
         return map(lambda x: map(sigma, x), simple_moves(sigma(pos), white_to_black(board), 'b'))
 
 def capture_moves(pos, board, color):
-    def longest_run(chain, posp, i, j):
-        if posp[0]+i in range(8) and posp[1]+j in range(8) and posp[0]+2*i in range(8) and posp[1]+2*j in range(8):
-            ngh = board[posp[0]+i][posp[1]+j]
-            next = board[posp[0]+2*i][posp[1]+2*j]
-            if ngh != '_' and ngh.lower() != color and next == '_':
-                newpos = (posp[0]+2*i, posp[1]+2*j)
-                chain.append(newpos)
-                # check if there is still another neighbor in three remaining directions
-                longest_run(chain, newpos, i, +j)
-                # or longest_run(chain, newpos, i, -j)
+    # Check recursively if any neighbors are eligible to be captured
+    def walk(steps, posp, i, j):
+        def is_crown():
+            return board[pos[0]][pos[1]] == color.upper()
+
+        def move(posp, i, j):
+            return (posp[0]+2*i, posp[1]+2*j)
+
+        def can_capture(posp, i, j):
+            if posp[0]+i in range(8) and posp[1]+j in range(8) and posp[0]+2*i in range(8) and posp[1]+2*j in range(8):
+                ngh = board[posp[0]+i][posp[1]+j]
+                next = board[posp[0]+2*i][posp[1]+2*j]
+                return ngh != '_' and ngh.lower() != color and (next == '_' or (posp[0] + 2*i == pos[0] and posp[1] + 2*j == pos[1]))
+            else:
+                return False
+
+        if can_capture(posp, i, j):
+            newpos = move(posp, i, j)
+            steps.append(newpos)
+            if is_crown():
+                if can_capture(newpos, i, j):
+                    walk(steps, newpos, i, j)
+                elif can_capture(newpos, i, -j):
+                    walk(steps, newpos, i, -j)
+                elif can_capture(newpos, -i, j):
+                    walk(steps, newpos, -i, j)
+            else:
+                if newpos[0] < 7:
+                    if can_capture(newpos, i, j):
+                        walk(steps, newpos, i, j)
+                    elif can_capture(newpos, i, -j):
+                        walk(steps, newpos, i, -j)
+                else:
+                    if can_capture(newpos, -i, j):
+                        walk(steps, newpos, -i, j)
 
     def add_if_neighbor(l, i, j):
-        chain = [pos]
-        longest_run(chain, pos, i, j)
-        if len(chain)>1:
-            l.append(chain)
+        steps = [pos]
+        walk(steps, pos, i, j)
+        if len(steps)>1:
+            l.append(steps)
 
     if color == 'b':
         return checkerboard_physics(pos, board, color, add_if_neighbor)
