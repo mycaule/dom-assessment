@@ -65,12 +65,22 @@ def simple_moves(pos, board, color):
         return map(lambda x: map(sigma, x), simple_moves(sigma(pos), white_to_black(board), 'b'))
 
 def capture_moves(pos, board, color):
+    def longest_run(chain, posp, i, j):
+        if posp[0]+i in range(8) and posp[1]+j in range(8) and posp[0]+2*i in range(8) and posp[1]+2*j in range(8):
+            ngh = board[posp[0]+i][posp[1]+j]
+            next = board[posp[0]+2*i][posp[1]+2*j]
+            if ngh != '_' and ngh.lower() != color and next == '_':
+                newpos = (posp[0]+2*i, posp[1]+2*j)
+                chain.append(newpos)
+                # check if there is still another neighbor in three remaining directions
+                longest_run(chain, newpos, i, +j)
+                # or longest_run(chain, newpos, i, -j)
+
     def add_if_neighbor(l, i, j):
-        ngh = board[pos[0]+i][pos[1]+j]
-        if ngh != '_' and ngh.lower() != color:
-            if pos[0]+2*i in range(8) and pos[1]+2*j in range(8):
-                if board[pos[0]+2*i][pos[1]+2*j] == '_':
-                    l.append([pos, (pos[0]+2*i, pos[1]+2*j)])
+        chain = [pos]
+        longest_run(chain, pos, i, j)
+        if len(chain)>1:
+            l.append(chain)
 
     if color == 'b':
         return checkerboard_physics(pos, board, color, add_if_neighbor)
