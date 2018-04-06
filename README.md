@@ -31,16 +31,16 @@ $ make
 7 | w   w   w   w   |
   -------------------
 ```
-If you consider,
- - i values in rows
- - j values in columns (as in Excel spreadsheets)
+If you consider (i,j) coordinates as in Excel spreadsheets:
+ - i values in rows,
+ - j values in columns.
 
 the possible values for black pieces are:
 Def_b = { (i, j) in [0;7] x [0;7]
             with i and j having opposite parities}
 
-The sigma function reverse the black and white position in a symmetric manner
-such that that the f function maps (i, j) to :
+The sigma function reverses the black and white position in a symmetric manner
+such that the f function maps (i, j) to :
  sigma: (i, j) => (7-i, 7-j)
 
 ```
@@ -60,8 +60,8 @@ For a piece x, computing All(x) involves starting from Def(x) then eliminating s
 ### Play
 
 Strategy:
-- Maximize immediate gain after the move
-- Maximize gain after two moves (Alpha Beta pruning)
+- Capture if possible, maximize number of pieces captured
+- If no capture is possible, choose the next move that minimize inertia (defensive attitude) or that maximize inertia (offensive attitude)
 
 TODO Write small history of resolution algorithms since Perceptron in 1950.
 Modern technique is reinforcement learning as popularized by Alpha Go.

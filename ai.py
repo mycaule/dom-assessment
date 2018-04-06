@@ -5,7 +5,7 @@ def allowed_moves(board, color):
     # board: _ empty, b/w piece, B/W king
     # color: b/w next to play
     positions = []
-    for i,j in itertools.product(range(8), range(8)):
+    for i,j in itertools.product(range(8), repeat=2):
         if board[i][j].lower() == color and (i + j) % 2 == 1:
             positions.append((i, j))
 
@@ -113,8 +113,40 @@ def capture_moves(pos, board, color):
         return map(lambda x: map(sigma, x), capture_moves(sigma(pos), white_to_black(board), 'b'))
 
 def play(board, color):
-    return random_play(board, color)
+    return max_gain1(board, color)
+    # return random_play(board, color)
+
+def max_gain1(board, color):
+    def inertia(move):
+        def center(pieces):
+            n = len(pieces)
+            return reduce(lambda acc, x: (acc[0]+x[0]/n, acc[1]+x[1]/n), pieces, (0, 0))
+
+        def pieces(board):
+            res = []
+            for i,j in itertools.product(range(8), repeat=2):
+                if board[i][j].lower() == color:
+                    res.append((i,j))
+            return res
+
+        pieces = pieces(board)
+
+        for fr, to in itertools.izip(pieces, pieces[1:]):
+            pieces[pieces.index(fr)] = to
+
+        g = center(pieces)
+        return reduce(lambda acc, x: acc + (x[0]-g[0])**2+(x[1]-g[1])**2, pieces, 0)
+
+    moves = allowed_moves(board, color)
+    moves.sort(key=len, reverse=True)
+
+    if len(moves[0]) == 2:
+        moves.sort(key=inertia, reverse=True)
+    return moves [0]
 
 def random_play(board, color):
     moves = allowed_moves(board, color)
     return random.choice(moves)
+
+def combinations(pieces, moves):
+    return [moves]
