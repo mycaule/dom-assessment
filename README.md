@@ -10,6 +10,8 @@
 
 ### Usage
 
+Small program to plays checkers in the terminal against an AI.
+
 ```
 $ source .venv/bin/activate
 $ pip freeze > requirements.txt
@@ -17,7 +19,7 @@ $ make test
 $ make
 ```
 
-### Allowed Moves
+### Allowed moves
 
 ```
   __0_1_2_3_4_5_6_7__
@@ -31,37 +33,45 @@ $ make
 7 | w   w   w   w   |
   -------------------
 ```
-If you consider (i,j) coordinates as in Excel spreadsheets:
- - i values in rows,
- - j values in columns.
+If you consider *(i,j)* coordinates as in Excel spreadsheets:
+ - *i* values in rows,
+ - *j* values in columns.
 
-the possible values for black pieces are:
-Def_b = { (i, j) in [0;7] x [0;7]
-            with i and j having opposite parities}
-
-The sigma function reverses the black and white position in a symmetric manner
-such that the f function maps (i, j) to :
- sigma: (i, j) => (7-i, 7-j)
+the possible values *Def(b)* and allowed moves *All(b)* for black pieces are:
 
 ```
+Def(b) = { (i, j) in [0;7] x [0;7]
+            with i and j having opposite parities}
+All(b) = { [(i, j), (i+1, j±1)] / (i, j) in Def(b)}
+```
+
+The *sigma* function reverses the black and white position in a symmetric manner :
+
+```
+sigma: (i, j) => (7-i, 7-j)
 sigma o sigma = Id
-Def_w = sigma(Def_b)
+All(w) = sigma(All(b))
 ```
 
 Kings can move through the whole board in both directions meaning that:
 ```
-Def_B = Def_W = Def_w U Def_b
+All(B) = All(W) = All(w) U All(b)
 ```
 
 Considering these properties, it suffices to study the black allowed moves.
+We compute the list of non-capturing moves and capturing moves separately.
 
-For a piece x, computing All(x) involves starting from Def(x) then eliminating squares occupied by its neighbors, then computing recursively possible moves from the tail if capture is done.
+### Playing strategy
 
-### Play
+- Capture if possible, maximize number of pieces captured,
+- If no capture is possible, choose the next move that minimizes or maximize inertia towards an adaptive attitude if we are outnumbered or not.
 
-Strategy:
-- Capture if possible, maximize number of pieces captured
-- If no capture is possible, choose the next move that minimize inertia (defensive attitude) or that maximize inertia (offensive attitude)
+To go further, we can study more efficient openings and implement strategies from the litterature:
 
-TODO Write small history of resolution algorithms since Perceptron in 1950.
-Modern technique is reinforcement learning as popularized by Alpha Go.
+* 1950 - Claude Shannon
+* 1952 - Perceptron
+* 1958 - MiniMax with Alpha Beta pruning
+* 1982 - Reinforcement learning
+* 1990 - Chinook
+* 1990 - Deep Blue
+* 2010 - Alpha Go

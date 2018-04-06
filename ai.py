@@ -12,7 +12,6 @@ def allowed_moves(board, color):
     M1 = reduce(lambda a,v: a+v, map(lambda p: simple_moves(p, board, color), positions), [])
     M2 = reduce(lambda a,v: a+v, map(lambda p: capture_moves(p, board, color), positions), [])
 
-    print('M2', M2)
     return M2 if len(M2) else M1
 
 def sigma(pos):
@@ -122,15 +121,14 @@ def max_gain1(board, color):
             n = len(pieces)
             return reduce(lambda acc, x: (acc[0]+x[0]/n, acc[1]+x[1]/n), pieces, (0, 0))
 
-        def pieces(board):
+        def pieces():
             res = []
             for i,j in itertools.product(range(8), repeat=2):
                 if board[i][j].lower() == color:
                     res.append((i,j))
             return res
 
-        pieces = pieces(board)
-
+        pieces = pieces()
         for fr, to in itertools.izip(pieces, pieces[1:]):
             pieces[pieces.index(fr)] = to
 
@@ -141,7 +139,10 @@ def max_gain1(board, color):
     moves.sort(key=len, reverse=True)
 
     if len(moves[0]) == 2:
-        moves.sort(key=inertia, reverse=True)
+        countMe = reduce(lambda a, l: a+l.lower().count(color), board, 0)
+        countOpp = reduce(lambda a, l: a+l.lower().count('w' if color == 'b' else 'b'), board, 0)
+        moves.sort(key=inertia, reverse=(countOpp <= countMe))
+
     return moves [0]
 
 def random_play(board, color):
