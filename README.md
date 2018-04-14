@@ -75,3 +75,7 @@ To go further, we can study more efficient openings and implement strategies fro
 * 1990 - Chinook
 * 1990 - Deep Blue
 * 2010 - Alpha Go
+
+### Going further
+
+[Sam Ragusa - Checkers with Reinforcement learning](https://github.com/SamRagusa/Checkers-Reinforcement-Learning)
